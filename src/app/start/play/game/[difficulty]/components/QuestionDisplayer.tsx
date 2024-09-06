@@ -19,39 +19,31 @@ const QuestionDisplayer = (props: Props) => {
   const [index, setIndex] = useState(0);
   const [answerCorrect, setAnswerCorrect] = useState(false);
   const [correctScreen, setCorrectScreen] = useState(false);
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (selectedAnswer !== null) {
+      const isCorrect = props.questions[index].correct === selectedAnswer;
+      setAnswerCorrect(isCorrect);
+
+      if (isCorrect) {
+        setCorrectAnswers((prev) => prev + 1);
+      }
+
+      setCorrectScreen(true);
+    }
+  }, [selectedAnswer]);
 
   function handler(answer: string) {
-    handleAnswer(answer);
-    handleIndex();
-    handleScreen();
-    handleCorrectAnswers();
+    setSelectedAnswer(answer);
   }
 
-  function handleCorrectAnswers() {
-    console.log(answerCorrect);
-    if (answerCorrect) {
-      setCorrectAnswers(correctAnswers + 1);
-      console.log(correctAnswers);
-      return
+  function handleNext() {
+    if (index < props.questions.length - 1) {
+      setIndex((prevIndex) => prevIndex + 1);
+      setCorrectScreen(false);
+      setSelectedAnswer(null);
     }
-
-    console.log(correctAnswers);
-  }
-
-  function handleIndex() {
-    if (index === props.questions.length - 1) {
-      return
-    } else {
-      setIndex(index + 1);
-    }
-  }
-
-  function handleAnswer(answer: string) {
-    setAnswerCorrect(props.questions[index].correct === answer);
-  }
-
-  function handleScreen() {
-    setCorrectScreen(!correctScreen);
   }
 
   return (
@@ -78,24 +70,25 @@ const QuestionDisplayer = (props: Props) => {
       {correctScreen && (
         <div className="bg-gray-800 flex flex-col p-5">
           {answerCorrect ? (
-            <CorrectScreen answerCorrect={answerCorrect}/>
+            <CorrectScreen answerCorrect={answerCorrect} />
           ) : (
-            <CorrectScreen answerCorrect={answerCorrect}/>
+            <CorrectScreen answerCorrect={answerCorrect} />
           )}
           {index !== props.questions.length - 1 && (
             <button
               className="text-2xl text-gray-300 m-3 p-3 bg-gray-800 border-none"
-              onClick={handleScreen}
+              onClick={handleNext}
             >
               Next Question
             </button>
           )}
           {index === props.questions.length - 1 && (
-            <Link href="/start/play" className="text-2xl text-gray-300 m-3 p-3 bg-gray-800 border-none">go to the menu</Link>
+            <Link href="/start/play" className="text-2xl text-gray-300 m-3 p-3 bg-gray-800 border-none">
+              go to the menu
+            </Link>
           )}
         </div>
       )}
-
     </>
   );
 };
